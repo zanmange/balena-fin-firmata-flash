@@ -11,7 +11,7 @@ This is a balena application that allows to flash the balenaFin Coprocessor with
 
 The Firmata protocol should correctly output the messages `X ✔ firmware name` and `Y.Z ✔ firmata version` (where `Y` & `Z` are the current supported `MAJOR` & `MINOR` versions of firmata) when the balena application has been successfully started.
 
-After starting, the balena application will perform a digital and analogue I/O test to validate that the pins are behaving correctly. Please note, you should not have any devices connected to the USB hub during the test.
+After starting, the balena application will perform a digital and analogue I/O test to validate that the pins are behaving correctly. **Please note, you should not have any devices connected to the USB hub during the test.**
 
 In order to complete the tests connect jumper wires across the following pins:
 
