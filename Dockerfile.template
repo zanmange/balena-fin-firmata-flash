@@ -18,8 +18,8 @@ RUN apt-get update && apt-get install -yq --no-install-recommends \
     screen \
     telnet \
     make \
-    && git clone --depth 1 https://github.com/balena-io-modules/FT2232H-56Q-openocd && \
-      cd FT2232H-56Q-openocd && chmod -R +x ./* && autoreconf -f -i && ./configure && make && \
+    && git clone --depth 1 http://openocd.zylin.com/openocd && \
+      cd openocd && chmod -R +x ./* && autoreconf -f -i && ./configure --enable-sysfsgpio --enable-bcm2835gpio && make && \
       make install
 
 # Move app to filesystem

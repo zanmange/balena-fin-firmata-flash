@@ -1,5 +1,5 @@
 const Firmata = require("firmata");
-const board = new Firmata("/dev/ttyUSB0");
+const board = new Firmata("/dev/ttyS0");
 
 console.log("Checking Firmata version...")
 
@@ -17,7 +17,7 @@ board.on("ready", function() {
   let DIGITAL_PASS = false;
 
   const ANALOG_OUT = 4;
-  const ANALOG_IN = 3; 
+  const ANALOG_IN = 3;
   let ANALOG_PASS = false;
   const analogs = [ANALOG_IN];
   let i = 0;
