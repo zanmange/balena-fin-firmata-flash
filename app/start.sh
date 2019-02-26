@@ -1,5 +1,7 @@
 echo "toggling co-processor mux to flash mode..."
-echo 41 > /sys/class/gpio/export && echo "out" > /sys/class/gpio/gpio41/direction && echo 1 > /sys/class/gpio/gpio41/value
+if [[ -e /sys/class/gpio/gpio41 ]]; then
+  echo 41 > /sys/class/gpio/export && echo "out" > /sys/class/gpio/gpio41/direction && echo 1 > /sys/class/gpio/gpio41/value
+fi
 sleep 3
 chmod +x flash.sh
 echo "Opening screen terminal"
