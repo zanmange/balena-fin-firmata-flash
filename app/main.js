@@ -1,33 +1,85 @@
-const { spawn } = require('child_process');
-const Gpio = require('onoff').Gpio;
-const mux = new Gpio(41, 'out');
-let openocd, telnet;
+const Firmata = require("firmata");
+const port = process.env.SERIALPORT || "/dev/ttyS0";
+const board = new Firmata(port);
 
-mux.write(1, (err) => {
+console.log("Checking Firmata version...");
+
+board.on("queryfirmware", () => {
   "use strict";
-  if (err) {
-    console.error(err);
-  } else {
-    openocd = spawn('openocd', ['-f', 'balena-fin-v1.1.cfg']);
-    openocd.stdout.on('data', (data) => {
-      console.log(`openocd: ${data}`);
-    });
-    openocd.stderr.on('data', (data) => {
-      console.log(`openocd: ${data}`);
-    });
-    openocd.on('close', (code) => {
-      console.log(`openocd exited with code ${code}`);
-    });
-    telnet = spawn('telnet', ['127.0.0.1', '4444']);
-    telnet.stdout.on('data', (data) => {
-      console.log(`telnet: ${data}`);
-    });
-    telnet.stderr.on('data', (data) => {
-      console.log(`telnet: ${data}`);
-    });
-    telnet.on('close', (code) => {
-      console.log(`telnet exited with code ${code}`);
-    });
+  // Encoded terminal text colors, i.e. green is \x1b[32m
+  console.log('\x1b[32m%s\x1b[0m', board.firmware.name + "  ✔ firmware name");
+  console.log('\x1b[32m%s\x1b[0m', board.firmware.version.major + "." + board.firmware.version.minor + "              ✔ firmata version");
+});
 
-  }
+board.on("ready", function() {
+  "use strict";
+  const LED = 14;
+
+  const DIGITAL_OUT = 2;
+  let state = 0;
+  let DIGITAL_PASS = false;
+
+  const ANALOG_OUT = 4;
+  const ANALOG_IN = 3;
+  let ANALOG_PASS = false;
+  const analogs = [ANALOG_IN];
+  let i = 0;
+
+  console.log('\x1b[32m%s\x1b[0m', "balenaFin        ✔ ready");
+  console.log("Starting DIGITAL I/O check...");
+
+  this.pinMode(LED, board.MODES.OUTPUT);
+  this.pinMode(DIGITAL_OUT, board.MODES.OUTPUT);
+  this.digitalWrite(DIGITAL_OUT, 1);
+
+  const states = {
+    1: 0
+  };
+
+  Object.keys(states).forEach(function(pin) {
+    pin = +pin;
+    this.pinMode(pin, board.MODES.INPUT);
+    this.digitalRead(pin, function(value) {
+      console.log("DIGITAL_IN | Pin %d | Value %d", pin, value);
+      if (value == 1) {
+        DIGITAL_PASS = true;
+      }
+    });
+  }, this);
+
+  console.log("Starting ANALOG I/O check...");
+
+  this.pinMode(ANALOG_OUT, board.MODES.PWM);
+
+  analogs.forEach(function(pin) {
+    pin = +pin;
+    this.pinMode(pin, board.MODES.ANALOG);
+    this.analogRead(pin, function(value) {
+      if (value > 2000) {
+        ANALOG_PASS = true;
+      }
+      // loops through duty cycles of PWM
+      i = 10 + i;
+      console.log("ANALOG_IN  | Pin %d | Value %d", pin, value);
+      this.analogWrite(ANALOG_OUT, i);
+      if (i >= 100) {
+        i = 0;
+      }
+    });
+  }, this);
+
+  setInterval(() => {
+    this.digitalWrite(LED, (state ^= 1));
+    if (DIGITAL_PASS && ANALOG_PASS) {
+      console.log('\x1b[32m%s\x1b[0m', "All checks passed ✔");
+      process.exit();
+    }
+  }, 500);
+});
+
+process.on('SIGINT', function() {
+  "use strict";
+  console.log("Resetting Firmata");
+  board.reset();
+  process.exit();
 });

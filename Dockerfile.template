@@ -25,6 +25,9 @@ RUN apt-get update && apt-get install -yq --no-install-recommends \
 # Move app to filesystem
 COPY ./app ./
 
+# Make the openocd script executable
+RUN chmod +x openocd.sh
+
 # enable systemd init system in the container
 ENV INITSYSTEM on
 
@@ -32,4 +35,4 @@ ENV INITSYSTEM on
 RUN npm install
 
 # Start app
-CMD npm start
+CMD ["bash", "/usr/src/app/start.sh"]
