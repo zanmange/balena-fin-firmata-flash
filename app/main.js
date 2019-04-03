@@ -1,15 +1,7 @@
-const Telnet = require('telnet-client');
-const telnet_params = {
-  host: '127.0.0.1',
-  port: 4444
-};
-const connection = new Telnet();
-const {
-  spawn
-} = require('child_process');
+const { spawn } = require('child_process');
 const Gpio = require('onoff').Gpio;
 const mux = new Gpio(41, 'out');
-let openocd;
+let openocd, telnet;
 
 mux.write(1, (err) => {
   "use strict";
@@ -18,23 +10,24 @@ mux.write(1, (err) => {
   } else {
     openocd = spawn('openocd', ['-f', 'balena-fin-v1.1.cfg']);
     openocd.stdout.on('data', (data) => {
-      console.log(`stdout: ${data}`);
+      console.log(`openocd: ${data}`);
     });
     openocd.stderr.on('data', (data) => {
-      console.log(`stderr: ${data}`);
+      console.log(`openocd: ${data}`);
     });
     openocd.on('close', (code) => {
-      console.log(`child process exited with code ${code}`);
+      console.log(`openocd exited with code ${code}`);
+    });
+    telnet = spawn('telnet', ['127.0.0.1', '4444']);
+    telnet.stdout.on('data', (data) => {
+      console.log(`telnet: ${data}`);
+    });
+    telnet.stderr.on('data', (data) => {
+      console.log(`telnet: ${data}`);
+    });
+    telnet.on('close', (code) => {
+      console.log(`telnet exited with code ${code}`);
     });
 
-    connection.connect(telnet_params)
-      .then(function(prompt) {
-        connection.exec("reset halt")
-          .then(function(res) {
-            console.log('promises result:', res);
-          });
-      }, function(error) {
-        console.log('promises reject:', error);
-      });
   }
 });
