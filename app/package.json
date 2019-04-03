@@ -1,6 +1,6 @@
 {
   "name": "balena-fin-firmata-flash",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A base application for testing that the firmata firmware has been flashed to the balenaFin's Coprocessor!",
   "main": "app/start.js",
   "scripts": {
@@ -16,8 +16,14 @@
     "url": "https://github.com/balena-io-playground/balena-fin-firmata-flash/issues"
   },
   "homepage": "https://github.com/balena-io-playground/balena-fin-firmata-flash#readme",
+  "jshintConfig": {
+    "esversion": 6,
+    "strict": true
+  },
   "dependencies": {
-    "serialport": "^6.2.0",
-    "firmata": "^2.0.0"
+    "expect-telnet": "^1.0.0",
+    "firmata": "^2.0.0",
+    "onoff": "^4.1.1",
+    "serialport": "^6.2.0"
   }
 }
