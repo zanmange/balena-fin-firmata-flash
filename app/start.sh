@@ -10,10 +10,11 @@ sleep 1
 echo "Opening screen terminal"
 screen -dmS swd_program  "./openocd.sh"
 sleep 5
-{ sleep 5; echo "reset halt"; echo "program firmware/bootloader.s37"; echo "program firmware/firmata.hex"; echo "reset run"; sleep 10; } | telnet localhost 4444
+if [ -z "$FIRMWARE" ]; then
+  { sleep 5; echo "reset halt"; echo "program firmware/bootloader.s37"; sleep 5; echo "reset halt"; echo "program firmware/firmata.hex"; echo "reset run"; sleep 10; } | telnet localhost 4444
+else
+  { sleep 5; echo "reset halt"; echo "program firmware/bootloader.s37"; sleep 5; echo "reset halt"; echo "program $FIRMWARE"; echo "reset run"; sleep 10; } | telnet localhost 4444
+fi
 sleep 5
-echo "toggling co-processor mux to communication mode..."
-echo 0 > /sys/class/gpio/gpio41/value
-sleep 1
-echo "RUN $ node main.js, to start firmata checks"
+echo "WARNING!! kill any openocd process first, then toggle GPIO41 LOW via echo 0 > /sys/class/gpio/gpio41/value then RUN $ node main.js, to start firmata checks"
 tail -f /dev/null

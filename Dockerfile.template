@@ -28,9 +28,6 @@ COPY ./app ./
 # Make the openocd script executable
 RUN chmod +x openocd.sh
 
-# enable systemd init system in the container
-ENV INITSYSTEM on
-
 # Install node libs
 RUN npm install
 
