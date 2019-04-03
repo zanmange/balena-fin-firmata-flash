@@ -1,8 +1,7 @@
 const Telnet = require('telnet-client');
 const telnet_params = {
   host: '127.0.0.1',
-  port: 4444,
-  timeout: 1500
+  port: 4444
 };
 const connection = new Telnet();
 const {
