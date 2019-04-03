@@ -10,7 +10,7 @@ sleep 1
 echo "Opening screen terminal"
 screen -dmS swd_program  "./openocd.sh"
 sleep 5
-{ sleep 5; echo "reset halt"; echo "program firmware/bootloader.s37"; echo "program firmware/firmata.hex"; echo "reset run"; sleep 10; } | telnet localhost 4444
+{ sleep 5; echo "reset"; echo "program firmware/bootloader.s37"; echo "program firmware/firmata.hex"; echo "reset run"; sleep 10; } | telnet localhost 4444
 sleep 5
 echo "toggling co-processor mux to communication mode..."
 echo 0 > /sys/class/gpio/gpio41/value
