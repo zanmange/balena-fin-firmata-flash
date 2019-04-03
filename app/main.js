@@ -1,5 +1,13 @@
-const et = require("expect-telnet");
-const { spawn } = require('child_process');
+const Telnet = require('telnet-client');
+const telnet_params = {
+  host: '127.0.0.1',
+  port: 4444,
+  timeout: 1500
+};
+const connection = new Telnet();
+const {
+  spawn
+} = require('child_process');
 const Gpio = require('onoff').Gpio;
 const mux = new Gpio(41, 'out');
 let openocd;
@@ -20,19 +28,14 @@ mux.write(1, (err) => {
       console.log(`child process exited with code ${code}`);
     });
 
-    et("127.0.0.1:4444", [{
-      expect: "",
-      send: "reset halt\r"
-    },{
-      expect: "",
-      send: "program firmware/firmata.hex\r"
-    },{
-      expect: "",
-      send: "reset run\r"
-    }], {
-      exit: true
-    }, (err) => {
-      if (err) console.error(err);
-    });
+    connection.connect(telnet_params)
+      .then(function(prompt) {
+        connection.exec("reset halt")
+          .then(function(res) {
+            console.log('promises result:', res);
+          });
+      }, function(error) {
+        console.log('promises reject:', error);
+      });
   }
 });

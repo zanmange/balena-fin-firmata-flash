@@ -22,9 +22,9 @@
     "strict": true
   },
   "dependencies": {
-    "expect-telnet": "^1.0.0",
     "firmata": "^2.0.0",
     "onoff": "^4.1.1",
-    "serialport": "^6.2.0"
+    "serialport": "^6.2.0",
+    "telnet-client": "^0.16.4"
   }
 }
