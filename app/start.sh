@@ -1,4 +1,4 @@
-f [ -z "$STOP" ]; then
+if [ -z "$STOP" ]; then
   echo "toggling co-processor mux to flash mode..."
   if [[ -e /sys/class/gpio/gpio41 ]]; then
     echo "mux pin already in use, will not export but just set it..."
