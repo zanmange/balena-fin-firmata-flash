@@ -1,4 +1,12 @@
 if [ -z "$STOP" ]; then
+  echo "download latest firmata firmware from github..."
+  curl -s https://api.github.com/repos/balena-io/balena-fin-coprocessor-firmata/releases/latest \
+  | grep "browser_download_url.*hex" \
+  | cut -d : -f 2,3 \
+  | tr -d \" \
+  | wget -qi -
+  echo "placing firmata.hex into firmware dir..."
+  mv firmata.hex ./firmware/firmata.hex
   echo "toggling co-processor mux to flash mode..."
   if [[ -e /sys/class/gpio/gpio41 ]]; then
     echo "mux pin already in use, will not export but just set it..."
