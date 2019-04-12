@@ -36,6 +36,10 @@ board.on("ready", function() {
     1: 0
   };
 
+  if (process.env.SLEEP) {
+    this.sysexCommand(configSleep(5,20000));
+  };
+
   Object.keys(states).forEach(function(pin) {
     pin = +pin;
     this.pinMode(pin, board.MODES.INPUT);
@@ -69,7 +73,7 @@ board.on("ready", function() {
   }, this);
 
   setInterval(() => {
-    this.digitalWrite(LED, (state ^= 1));
+    // this.digitalWrite(LED, (state ^= 1));
     if (DIGITAL_PASS && ANALOG_PASS) {
       console.log('\x1b[32m%s\x1b[0m', "All checks passed ✔");
       process.exit();
@@ -83,3 +87,17 @@ process.on('SIGINT', function() {
   board.reset();
   process.exit();
 });
+
+function configSleep(delay,sleep) {
+  // we want to represent the input as a 8-bytes array
+  var byteArray = [0, 0, 0, 0];
+
+  for ( var index = 0; index < byteArray.length; index ++ ) {
+      var byte = sleep & 0xff;
+      byteArray [ index ] = byte;
+      sleep = (sleep - byte) / 256 ;
+  }
+  byteArray.splice(0, 0, 0x0B);
+  byteArray.splice(1, 0, delay);  
+  return byteArray;
+};
