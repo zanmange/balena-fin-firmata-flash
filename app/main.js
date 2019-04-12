@@ -73,7 +73,7 @@ board.on("ready", function() {
   }, this);
 
   setInterval(() => {
-    // this.digitalWrite(LED, (state ^= 1));
+    this.digitalWrite(LED, (state ^= 1));
     if (DIGITAL_PASS && ANALOG_PASS) {
       console.log('\x1b[32m%s\x1b[0m', "All checks passed ✔");
       process.exit();
