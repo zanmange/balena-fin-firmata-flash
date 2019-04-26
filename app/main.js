@@ -2,6 +2,7 @@ const Firmata = require("firmata");
 const port = process.env.SERIALPORT || "/dev/ttyS0";
 const board = new Firmata(port);
 
+board.settings.skipCapabilities = true;
 console.log("Checking Firmata version...");
 
 board.on("queryfirmware", () => {
@@ -37,7 +38,7 @@ board.on("ready", function() {
   };
 
   if (process.env.SLEEP) {
-    this.sysexCommand(configSleep(5,20000));
+    this.sysexCommand(configSleep(5,10));
   };
 
   Object.keys(states).forEach(function(pin) {
@@ -89,6 +90,7 @@ process.on('SIGINT', function() {
 });
 
 function configSleep(delay,sleep) {
+  console.log("Initiating Sleep command")
   // we want to represent the input as a 8-bytes array
   var byteArray = [0, 0, 0, 0];
 
@@ -98,6 +100,8 @@ function configSleep(delay,sleep) {
       sleep = (sleep - byte) / 256 ;
   }
   byteArray.splice(0, 0, 0x0B);
-  byteArray.splice(1, 0, delay);  
+  byteArray.splice(1, 0, 0x01);  
+  byteArray.splice(2, 0, delay);  
+  console.log(byteArray)
   return byteArray;
 };
