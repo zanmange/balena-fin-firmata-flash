@@ -1,6 +1,10 @@
 #!/bin/env node
 const firmata = require(__dirname + '/utils/firmata.js');
 const supervisor = require(__dirname + '/utils/supervisor.js');
+const gi = require('node-gtk');
+Fin = gi.require('Fin', '0.1');
+const fin = new Fin.Client();
+const BALENA_FIN_REVISION = fin.revision;
 const Gpio = require('onoff').Gpio;
 const mux = new Gpio(41, 'out');
 const fs = require('fs');
@@ -40,7 +44,7 @@ app.post('/v1/flash/:fw', (req, res) => {
     return res.status(400).send('Bad Request');
   }
   mux.writeSync(1);
-  let flash = spawn("/usr/src/app/flash.sh", [req.params.fw]);
+  let flash = spawn("/usr/src/app/flash.sh", [req.params.fw,BALENA_FIN_REVISION]);
   flash.stdout.on('data', (data) => {
     console.log("flash stdout: " + data);
   });
