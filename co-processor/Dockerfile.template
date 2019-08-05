@@ -6,6 +6,7 @@ COPY ./app/package.json ./
 
 # install required packages
 RUN apt-get update && apt-get install -yq --no-install-recommends \
+    libgirepository1.0-dev \
     git \
     build-essential \
     python-dev \
