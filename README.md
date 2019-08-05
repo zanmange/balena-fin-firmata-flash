@@ -4,9 +4,9 @@ This is a balena application that allows to flash the balenaFin Coprocessor with
 
 ### co-processor REST interface (port 1337)
 
-##### flash firmware
-
 default port: `1337`
+
+##### flash firmware
 
 _POST_ `/v1/flash/firmware`
 
