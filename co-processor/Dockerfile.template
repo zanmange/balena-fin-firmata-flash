@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -yq --no-install-recommends \
     make \
 # clone and install openocd
     && git clone --depth 1 https://github.com/ntfreak/openocd.git openocd-code && \
-      cd openocd-code && git submodule init && git submodule update && chmod -R +x ./* && autoreconf -f -i && ./configure --enable-sysfsgpio && make && \
+      cd openocd-code && git submodule init && git submodule update && chmod -R +x ./* && autoreconf -f -i && ./configure --enable-sysfsgpio --enable-ft2232_libftdi && make && \
       make install \
 # install nodeJS modules
     && JOBS=MAX npm install --unsafe-perm --production && npm cache clean --force && rm -rf /tmp/* \
