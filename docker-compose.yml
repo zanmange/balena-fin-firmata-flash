@@ -11,4 +11,3 @@ services:
     network_mode: host
     labels:
       io.balena.features.supervisor-api: '1'
-      io.balena.features.kernel-modules: '1'
