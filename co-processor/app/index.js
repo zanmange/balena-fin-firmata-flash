@@ -20,6 +20,7 @@ const mime = require('mime');
 const debug = require('debug')('http');
 const bodyParser = require("body-parser");
 const app = express();
+let errorCheck = 0;
 
 errorHandler = (err, req, res, next) => {
   res.status(500);
@@ -52,20 +53,25 @@ app.post('/v1/flash/:fw', (req, res) => {
   });
   flash.stderr.on('data', (data) => {
     console.log("flash stderr: " + data);
+    errorCheck++;
     return res.status(500).send(data);
   });
   flash.on('error', (err) => {
     console.error(err);
+    errorCheck++;
     return res.status(500).send(err);
   });
   flash.on('close', (code) => {
     mux.writeSync(0);
-    res.status(200).send('OK');
-    supervisor.reboot().then(() => {
-      console.log('rebooting via supervisor...');
-    }).catch((err) => {
-      console.error('reboot failed with error: ', err);
-    });
+    if (errorCheck === 0) {
+      res.status(200).send('OK');
+      supervisor.reboot().then(() => {
+        console.log('rebooting via supervisor...');
+      }).catch((err) => {
+        console.error('reboot failed with error: ', err);
+      });
+    }
+    errorCheck = 0;
   });
 });
 
