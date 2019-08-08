@@ -72,8 +72,10 @@ app.post('/v1/flash/:fw', (req, res) => {
       }).catch((err) => {
         console.error('reboot failed with error: ', err);
       });
+    } else {
+      console.log('flash failed! device will not reboot.');
+      errorCheck = 0;
     }
-    errorCheck = 0;
   });
 });
 
