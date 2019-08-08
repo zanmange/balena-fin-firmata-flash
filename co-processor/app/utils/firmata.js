@@ -59,6 +59,11 @@
     this.sleep = function(delay, timeout) {
       board.sysexCommand(self.configSleep(delay, timeout));
     };
+
+    this.close = function() {
+      board.transport.close();
+    };
+
     board.on("queryfirmware", () => {
       // Encoded terminal text colors, i.e. green is \x1b[32m
       self.fwVersion = {
