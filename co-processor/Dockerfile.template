@@ -44,8 +44,7 @@ RUN apt-get update && apt-get install -yq --no-install-recommends \
 
 # Move app to filesystem
 COPY ./app ./
-RUN chmod +x flash.sh
-RUN chmod +x openocd.sh
+RUN chmod +x flash.sh && chmod +x ./openocd/openocd-v09.sh && chmod +x ./openocd/openocd-v10.sh
 
 # Start app
 CMD ["bash", "/usr/src/app/start.sh"]
