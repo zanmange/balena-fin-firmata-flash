@@ -45,7 +45,6 @@ app.post('/v1/flash/:fw', (req, res) => {
   if (!req.params.fw) {
     return res.status(400).send('Bad Request');
   }
-  firmata.close();
   mux.writeSync(1);
   let flash = spawn("/usr/src/app/flash.sh", [req.params.fw, BALENA_FIN_REVISION]);
   flash.stdout.on('data', (data) => {
