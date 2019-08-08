@@ -5,10 +5,10 @@ REV=$2
 echo "Opening screen terminal for flashing $FW to balenaFin v$REV"
 case $REV in
   09)
-    screen -dmS swd_program  "openocd -f interface/ftdi/2232h-cp.cfg -f target/efm32.cfg"
+    screen -dmS swd_program  "./openocd/openocd-v09.sh"
     ;;
   10)
-    screen -dmS swd_program  "./openocd.sh"
+    screen -dmS swd_program  "./openocd/openocd-v10.sh"
     ;;
   *)
     echo "ERROR: unknown balenaFin revision" >&2
