@@ -6,6 +6,8 @@ This is a balena application that allows to flash the balenaFin Coprocessor with
 
 default port: `1337`
 
+**NOTE:** while having this interface exposed to the outside is useful for development (you can consume this interface from your laptop in order to flash and test your balenaFin) we highly suggest to change the docker-compose configuration for the co-processor service ( `network_mode: host` ) once your own business logic has this interface implemented so that only the services you deploy on the device will be able to access it.
+
 ##### flash firmware
 
 _POST_ `/v1/flash/firmware`

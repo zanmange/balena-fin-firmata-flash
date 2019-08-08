@@ -15,7 +15,7 @@ case $REV in
     exit 1
     ;;
 esac
-sleep 5
+sleep 6
   { sleep 5; echo "reset halt"; echo "program firmware/bootloader.s37"; sleep 5; echo "reset halt"; echo "program firmware/$FW"; echo "reset run"; sleep 10; } | telnet localhost 4444
 sleep 5
 echo "closing the openocd process..."

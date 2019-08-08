@@ -80,7 +80,7 @@ app.post('/v1/sleep/:delay/:timeout', (req, res) => {
     return res.status(400).send('Bad Request');
   }
   if (parseInt(BALENA_FIN_REVISION) < 10) {
-    return res.status(405).send('This function is only available on balenaFin revision 1.1 or greater');
+    return res.status(405).send('Feature not available on current hardware revision');
   }
   firmata.sleep(parseInt(req.params.delay), parseInt(req.params.timeout));
   res.status(200).send('OK');
