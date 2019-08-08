@@ -1,8 +1,16 @@
 #!/bin/env node
 
 {
+  const gi = require('node-gtk');
+  Fin = gi.require('Fin', '0.1');
+  const fin = new Fin.Client();
+  const BALENA_FIN_REVISION = fin.revision;
   const Firmata = require("firmata");
-  const port = process.env.SERIALPORT || "/dev/ttyS0";
+  if (BALENA_FIN_REVISION === '09') {
+    const port = process.env.SERIALPORT || "/dev/ttyUSB0";
+  } else {
+    const port = process.env.SERIALPORT || "/dev/ttyS0";
+  }
   const board = new Firmata(port);
   const debug = require('debug')('firmata');
   board.settings.skipCapabilities = true;

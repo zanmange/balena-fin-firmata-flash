@@ -4,7 +4,7 @@ FW=$1
 REV=$2
 echo "Opening screen terminal for flashing $FW to balenaFin v$REV"
 case $REV in
-  9)
+  09)
     screen -dmS swd_program  "openocd -f interface/ftdi/2232h-cp.cfg -f target/efm32.cfg"
     ;;
   10)
