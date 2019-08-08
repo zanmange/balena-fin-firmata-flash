@@ -1,12 +1,12 @@
 # balena-fin-firmata-flash
 
-This is a balena application that allows to flash the balenaFin Coprocessor with the latest version of the [balenaFin Firmata](https://github.com/balena-io/balena-fin-coprocessor-firmata). For more information about Firmata, check out the official [repo](https://github.com/firmata/protocol). **This currently supports the balenaFin v1.0** (v1.1 will soon be supported as well).
+This is a balena application template that has a co-processor service that allows to flash the balenaFin Coprocessor with the latest version of the [balenaFin Firmata](https://github.com/balena-io/balena-fin-coprocessor-firmata). For more information about Firmata, check out the official [repo](https://github.com/firmata/protocol).
+
+**NOTE:** while having this interface exposed to the outside is useful for development (you can consume this interface from your laptop in order to flash and test your balenaFin) we highly suggest to change the docker-compose configuration for the co-processor service ( `network_mode: host` ) once your own business logic has this interface implemented so that only the services you deploy on the device will be able to access it.
 
 ### co-processor REST interface (port 1337)
 
 default port: `1337`
-
-**NOTE:** while having this interface exposed to the outside is useful for development (you can consume this interface from your laptop in order to flash and test your balenaFin) we highly suggest to change the docker-compose configuration for the co-processor service ( `network_mode: host` ) once your own business logic has this interface implemented so that only the services you deploy on the device will be able to access it.
 
 ##### flash firmware
 
