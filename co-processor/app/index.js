@@ -52,7 +52,7 @@ app.post('/v1/flash/:fw', (req, res) => {
   });
   flash.stderr.on('data', (data) => {
     console.log("flash stderr: " + data);
-    if (!data.includes('flash stderr: Connection closed by foreign host')) {
+    if (!data.includes('Connection closed by foreign host.')) {
       errorCheck++;
       return res.status(500).send(data);
     }
