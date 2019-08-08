@@ -6,10 +6,11 @@
   const fin = new Fin.Client();
   const BALENA_FIN_REVISION = fin.revision;
   const Firmata = require("firmata");
+  let port;
   if (BALENA_FIN_REVISION === '09') {
-    const port = process.env.SERIALPORT || "/dev/ttyUSB0";
+    port = process.env.SERIALPORT || "/dev/ttyUSB0";
   } else {
-    const port = process.env.SERIALPORT || "/dev/ttyS0";
+    port = process.env.SERIALPORT || "/dev/ttyS0";
   }
   const board = new Firmata(port);
   const debug = require('debug')('firmata');

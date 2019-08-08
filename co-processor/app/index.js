@@ -1,4 +1,5 @@
 #!/bin/env node
+
 const firmata = require(__dirname + '/utils/firmata.js');
 const supervisor = require(__dirname + '/utils/supervisor.js');
 const gi = require('node-gtk');
@@ -44,7 +45,7 @@ app.post('/v1/flash/:fw', (req, res) => {
     return res.status(400).send('Bad Request');
   }
   mux.writeSync(1);
-  let flash = spawn("/usr/src/app/flash.sh", [req.params.fw,BALENA_FIN_REVISION]);
+  let flash = spawn("/usr/src/app/flash.sh", [req.params.fw, BALENA_FIN_REVISION]);
   flash.stdout.on('data', (data) => {
     console.log("flash stdout: " + data);
   });
@@ -58,10 +59,10 @@ app.post('/v1/flash/:fw', (req, res) => {
   flash.on('close', (code) => {
     mux.writeSync(0);
     res.status(200).send('OK');
-    supervisor.reboot().then(()=> {
+    supervisor.reboot().then(() => {
       console.log('rebooting via supervisor...');
     }).catch((err) => {
-      console.error('reboot failed with error: ',err);
+      console.error('reboot failed with error: ', err);
     });
   });
 });
@@ -70,12 +71,15 @@ app.post('/v1/sleep/:delay/:timeout', (req, res) => {
   if (!req.params.delay || !req.params.timeout) {
     return res.status(400).send('Bad Request');
   }
-  firmata.sleep(parseInt(req.params.delay),parseInt(req.params.timeout));
+  if (parseInt(BALENA_FIN_REVISION) < 10) {
+    return res.status(405).send('This function is only available on balenaFin revision 1.1 or greater');
+  }
+  firmata.sleep(parseInt(req.params.delay), parseInt(req.params.timeout));
   res.status(200).send('OK');
-  supervisor.shutdown().then(()=> {
+  supervisor.shutdown().then(() => {
     console.log('shutting down via supervisor...');
   }).catch((err) => {
-    console.error('shutdown failed with error: ',err);
+    console.error('shutdown failed with error: ', err);
   });
 });
 
