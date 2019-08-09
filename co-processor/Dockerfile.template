@@ -1,0 +1,51 @@
+FROM balenalib/%%BALENA_MACHINE_NAME%%-node:12-run
+
+# Defines our working directory in container
+WORKDIR /usr/src/app
+COPY ./app/package.json ./
+
+# install required packages
+RUN apt-get update && apt-get install -yq --no-install-recommends \
+    libgirepository1.0-dev \
+    git \
+    build-essential \
+    python-dev \
+    curl \
+    wget \
+    libtool \
+    pkg-config \
+    autoconf \
+    automake \
+    texinfo \
+    libusb-1.0 \
+    ftdi-eeprom \
+    libftdi-dev \
+    screen \
+    telnet \
+    make \
+# clone and install openocd
+    && git clone --depth 1 https://github.com/ntfreak/openocd.git openocd-code && \
+      cd openocd-code && git submodule init && git submodule update && chmod -R +x ./* && autoreconf -f -i && ./configure --enable-sysfsgpio --enable-ft2232_libftdi && make && \
+      make install \
+# install nodeJS modules
+    && JOBS=MAX npm install --unsafe-perm --production && npm cache clean --force && rm -rf /tmp/* \
+# install the balenaFin sdk
+    && curl -Ls https://github.com/balena-io/balena-fin-sdk/releases/download/v0.1.0/balena-fin-sdk-v0.1.0.tar.gz | tar -xvz -C . \
+    && mv Fin-0.1.typelib /usr/lib/arm-linux-gnueabihf/girepository-1.0/ && mv libfin.so /usr/lib/arm-linux-gnueabihf/ \
+# cleanup build deps that we won't need at runtime
+    && apt-get purge -y \
+      build-essential \
+      python-dev \
+      git \
+      curl \
+      wget \
+      autoconf \
+      automake \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Move app to filesystem
+COPY ./app ./
+RUN chmod +x flash.sh && chmod +x ./openocd/openocd-v1.0.sh && chmod +x ./openocd/openocd-v1.1.sh
+
+# Start app
+CMD ["bash", "/usr/src/app/start.sh"]
