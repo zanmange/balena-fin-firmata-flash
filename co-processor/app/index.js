@@ -66,11 +66,13 @@ app.post('/v1/flash/:fw', (req, res) => {
     mux.writeSync(0);
     if (errorCheck === 0) {
       res.status(200).send('OK');
-      supervisor.reboot().then(() => {
-        console.log('rebooting via supervisor...');
-      }).catch((err) => {
-        console.error('reboot failed with error: ', err);
-      });
+      if (BALENA_FIN_REVISION > '09') {
+        supervisor.reboot().then(() => {
+          console.log('rebooting via supervisor...');
+        }).catch((err) => {
+          console.error('reboot failed with error: ', err);
+        });
+      }
     } else {
       console.log('flash failed! device will not reboot.');
       errorCheck = 0;
