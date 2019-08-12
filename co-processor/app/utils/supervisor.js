@@ -41,26 +41,21 @@
 
     this.shutdown = function() {
       return new Promise((resolve, reject) => {
-        self.checkForOngoingUpdate().then((response) => {
-          let options = {
-            method: 'POST',
-            uri: BALENA_SUPERVISOR_ADDRESS + '/v1/shutdown?apikey=' + BALENA_SUPERVISOR_API_KEY
-          };
-          rp(options)
-            .then(function(parsedBody) {
-              if (!parsedBody.Error) {
-                resolve(parsedBody.Data);
-              } else {
-                reject(parsedBody.Error);
-              }
-            })
-            .catch(function(err) {
-              reject(err);
-            });
-        }).catch((response) => {
-          console.error("Device is not Idle, likely updating, will retry in 1 minute");
-          setTimeout(self.shutdown,60000);
-        });
+        let options = {
+          method: 'POST',
+          uri: BALENA_SUPERVISOR_ADDRESS + '/v1/shutdown?apikey=' + BALENA_SUPERVISOR_API_KEY
+        };
+        rp(options)
+          .then(function(parsedBody) {
+            if (!parsedBody.Error) {
+              resolve(parsedBody.Data);
+            } else {
+              reject(parsedBody.Error);
+            }
+          })
+          .catch(function(err) {
+            reject(err);
+          });
       });
     };
 
@@ -83,8 +78,8 @@
               reject(err);
             });
         }).catch((response) => {
-          console.error("Device is not Idle, likely updating, will retry in 1 minute");
-          setTimeout(self.reboot,60000);
+          console.error("Device is not Idle, likely updating, will retry rebooting in 60 seconds");
+          setTimeout(self.reboot, 60000);
         });
       });
     };

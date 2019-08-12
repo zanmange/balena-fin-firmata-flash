@@ -6,6 +6,7 @@ const gi = require('node-gtk');
 Fin = gi.require('Fin', '0.1');
 const fin = new Fin.Client();
 const BALENA_FIN_REVISION = fin.revision;
+const SERVER_PORT = parseInt(process.env.SERVER_PORT) || 1337;
 const Gpio = require('onoff').Gpio;
 const mux = new Gpio(41, 'out');
 const fs = require('fs');
@@ -21,6 +22,21 @@ const debug = require('debug')('http');
 const bodyParser = require("body-parser");
 const app = express();
 let errorCheck = 0;
+
+let shutdown = function(delay,timeout) {
+  return new Promise((resolve, reject) => {
+    supervisor.checkForOngoingUpdate().then((response) => {
+      firmata.sleep(parseInt(delay), parseInt(timeout));
+      supervisor.shutdown().then(() => {
+        resolve();
+      }).catch((err) => {
+        reject(err);
+      });
+    }).catch((response) => {
+      reject("Device is not Idle, likely updating, will not shutdown");
+    });
+  });
+};
 
 errorHandler = (err, req, res, next) => {
   res.status(500);
@@ -87,16 +103,18 @@ app.post('/v1/sleep/:delay/:timeout', (req, res) => {
   if (parseInt(BALENA_FIN_REVISION) < 10) {
     return res.status(405).send('Feature not available on current hardware revision');
   }
-  firmata.sleep(parseInt(req.params.delay), parseInt(req.params.timeout));
-  res.status(200).send('OK');
-  supervisor.shutdown().then(() => {
-    console.log('shutting down via supervisor...');
-  }).catch((err) => {
-    console.error('shutdown failed with error: ', err);
+  shutdown(req.params.delay,req.params.timeout).then(()=> {
+    console.error("Sleep command registered, shutting down...");
+    res.status(200).send('OK');
+  }).catch((error) => {
+    console.error("Device is not Idle, likely updating, will retry shutdown in 60 seconds");
+    setTimeout(shutdown, 60000);
   });
 });
 
-app.listen(1337);
+app.listen(SERVER_PORT, () => {
+  console.log('server listening on port ' + SERVER_PORT);
+});
 
 process.on('SIGINT', () => {
   mux.unexport();

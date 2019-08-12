@@ -12,7 +12,7 @@ default port: `1337`
 
 _POST_ `/v1/flash/firmware`
 
-flashes the given firmware name from the service fs ( ie `firmware/firmata-balena-0.0.2.hex` ). The co-processor service has a volume (`/data`) that you can add to other service and use as a way to share different firmwares to flash.
+flashes the given firmware name from the service fs ( ie `firmware/firmata-balena-0.0.2.hex` ). The co-processor service has a volume (`/data`) that you can add to other service and use as a way to share different firmwares to flash. on balenaFin v1.1 and above, this action will trigger a reboot.
 
 ##### sleep
 
