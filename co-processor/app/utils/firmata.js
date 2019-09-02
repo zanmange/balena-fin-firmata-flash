@@ -2,7 +2,7 @@
 
 {
   const gi = require('node-gtk');
-  Fin = gi.require('Fin', '0.1');
+  Fin = gi.require('Fin', '0.2');
   const fin = new Fin.Client();
   const BALENA_FIN_REVISION = fin.revision;
   const Firmata = require("firmata");
