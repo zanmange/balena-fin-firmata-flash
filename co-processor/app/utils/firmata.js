@@ -49,6 +49,10 @@
       return byteArray;
     };
 
+    this.setPin = function(pin, state) {
+      board.digitalWrite(pin, state);
+    };
+
     this.padData = function(input_string) {
       for (var i = 1; i < 6; i++) {
         input_string = input_string.splice((i * -7) - ((i * 1) - 1), 0, "0");

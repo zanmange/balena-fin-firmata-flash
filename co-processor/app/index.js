@@ -38,6 +38,16 @@ let shutdown = function(delay,timeout) {
   });
 };
 
+let setPin = function(pin,state) {
+  return new Promise((resolve, reject) => {
+    supervisor.checkForOngoingUpdate().then((response) => {
+      firmata.setPin(parseInt(pin), parseInt(state));
+    }).catch((response) => {
+      reject("coprocessor is not responding...");
+    });
+  });
+};
+
 errorHandler = (err, req, res, next) => {
   res.status(500);
   res.render('error', {
@@ -94,6 +104,17 @@ app.post('/v1/flash/:fw', (req, res) => {
       errorCheck = 0;
     }
   });
+});
+
+app.post('/v1/setpin/:pin/:state', (req, res) => {
+  if (!req.params.pin || !req.params.state) {
+    return res.status(400).send('Bad Request');
+  }
+  console.log('set ' + req.params.pin + ' to state ' + req.params.state);
+  setPin(req.params.pin, req.params.state).then(()=> {
+    res.status(200).send('OK');
+  }).catch((error) => {
+    console.error("device is not Idle, likely updating, will retry shutdown in 60 seconds");  });
 });
 
 app.post('/v1/sleep/:delay/:timeout', (req, res) => {
