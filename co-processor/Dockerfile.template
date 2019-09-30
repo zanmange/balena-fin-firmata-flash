@@ -35,7 +35,7 @@ RUN apt-get update && apt-get install -yq --no-install-recommends \
     make \
 # clone and install openocd
     && git clone --depth 1 $OPENOCD_REPO --branch $OPENOCD_VERSION openocd-code && \
-      cd openocd-code && git clone --depth 1 https://github.com/msteveb/jimtcl.git --branch $JIMTCL_VERSION jimtcl && \
+      cd openocd-code && \
       git clone --depth 1 $JIMTCL_REPO --branch $JIMTCL_VERSION jimtcl && \
       mv git2cl tools/git2cl/ && \
       git clone --depth 1 $LIBJAYLINK_REPO --branch $LIBJAYLINK_VERSION src/jtag/drivers/libjaylink && \
