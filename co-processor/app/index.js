@@ -42,6 +42,7 @@ let setPin = function(pin,state) {
   return new Promise((resolve, reject) => {
     supervisor.checkForOngoingUpdate().then((response) => {
       firmata.setPin(parseInt(pin), parseInt(state));
+      resolve();
     }).catch((response) => {
       reject("coprocessor is not responding...");
     });
