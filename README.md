@@ -35,6 +35,6 @@ _POST_ `/v1/setpin/:pin/:state`
 
 set digital pin state on the coprocessor header.
 * `pin` (integer) is the `Expansion Header` pin numbering as shown in the image below.
-* `state` (integer) is either 1 (on) or 2(off)
+* `state` (integer) is either 1 (on) or 0 (off)
 
 ![Coprocessor EXP Header](exp_header.png "Coprocessor EXP Header")
