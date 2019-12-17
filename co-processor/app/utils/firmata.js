@@ -12,18 +12,18 @@
   } else {
     port = process.env.SERIALPORT || "/dev/ttyS0";
   }
-  const board = new Firmata(port);
+  const board = new Firmata(port, {skipCapabilities: true});
   const debug = require('debug')('firmata');
-  board.settings.skipCapabilities = true;
+
   String.prototype.splice = function(idx, rem, str) {
     return this.slice(0, idx) + str + this.slice(idx + Math.abs(rem));
   };
+
   let self;
   let firmata = function() {
     'use strict';
     if (!(this instanceof firmata)) return new firmata();
     this.firmata = {};
-    this.fwVersion = {};
     self = this;
 
     this.configSleep = function(delay, sleep) {
@@ -64,18 +64,38 @@
       board.transport.close();
     };
 
-    board.on("queryfirmware", () => {
-      // Encoded terminal text colors, i.e. green is \x1b[32m
-      self.fwVersion = {
-        firmataName: board.firmware.name,
-        firmataVersion: board.firmware.version.major + "." + board.firmware.version.minor
-      };
-      debug(self.fwVersion);
-      board.sysexCommand([0xF0, 0x0B, 0x00, 0xF7], (data) => {
-          debug(Firmata.decode(data));
-      });
-    });
+    this.queryFirmware = () => {
+      const res = new Promise((resolve, reject) => {
+        let data;
 
+        const timeout = setTimeout(() => {
+          if (!data) {
+            reject(new Error('firmware metadata cannot be obtained'));
+          }
+        }, 10000);
+
+        board.on("queryfirmware", () => {
+          data = {
+            firmataName: board.firmware.name,
+            firmataVersion: board.firmware.version.major + "." + board.firmware.version.minor
+          };
+          clearTimeout(timeout);
+          resolve(data);
+        });
+      });
+      board.queryFirmware(() => { });
+      return res;
+    };
+
+    this.queryFirmware()
+        .then((data) => {
+          debug(data);
+
+          board.sysexCommand([0xF0, 0x0B, 0x00, 0xF7], (data) => {
+            debug(Firmata.decode(data));
+          });
+        })
+        .catch(() => {});
   };
   module.exports = firmata();
 }

@@ -1,49 +1,38 @@
 #!/bin/env node
 
-const firmata = require(__dirname + '/utils/firmata.js');
-const supervisor = require(__dirname + '/utils/supervisor.js');
+const express = require('express');
+const compression = require('compression');
+const bodyParser = require('body-parser');
+
 const gi = require('node-gtk');
-Fin = gi.require('Fin', '0.1');
+const Fin = gi.require('Fin', '0.2');
 const fin = new Fin.Client();
 const BALENA_FIN_REVISION = fin.revision;
 const SERVER_PORT = parseInt(process.env.SERVER_PORT) || 1337;
-const Gpio = require('onoff').Gpio;
-const mux = new Gpio(41, 'out');
-const fs = require('fs');
-const {
-  spawn
-} = require("child_process");
-const chalk = require('chalk');
-const express = require('express');
-const compression = require('compression');
-const path = require('path');
-const mime = require('mime');
-const debug = require('debug')('http');
-const bodyParser = require("body-parser");
-const app = express();
-let errorCheck = 0;
 
-let shutdown = function(delay,timeout) {
-  return new Promise((resolve, reject) => {
-    supervisor.checkForOngoingUpdate().then((response) => {
-      firmata.sleep(parseInt(delay), parseInt(timeout));
-      supervisor.shutdown().then(() => {
-        resolve();
-      }).catch((err) => {
-        reject(err);
-      });
-    }).catch((response) => {
-      reject("Device is not Idle, likely updating, will not shutdown");
-    });
-  });
+const firmata = require(__dirname + '/utils/firmata.js');
+const supervisor = require(__dirname + '/utils/supervisor.js');
+const Flasher = require(__dirname + '/flasher.js');
+
+const app = express();
+const flasher = Flasher(BALENA_FIN_REVISION, supervisor, firmata);
+
+const shutdown = (delay, timeout) => {
+  return supervisor.checkForOngoingUpdate()
+      .then(() => {
+        firmata.sleep(parseInt(delay), parseInt(timeout));
+        return supervisor.shutdown();
+      })
+      .catch(() => { throw new Error('Device is not Idle, likely updating, will not shutdown'); });
 };
 
-errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => {
   res.status(500);
   res.render('error', {
     error: err
   });
 };
+
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -61,39 +50,11 @@ app.post('/v1/flash/:fw', (req, res) => {
   if (!req.params.fw) {
     return res.status(400).send('Bad Request');
   }
-  mux.writeSync(1);
-  let flash = spawn("/usr/src/app/flash.sh", [req.params.fw, BALENA_FIN_REVISION]);
-  flash.stdout.on('data', (data) => {
-    console.log("flash stdout: " + data);
-  });
-  flash.stderr.on('data', (data) => {
-    console.log("flash stderr: " + data);
-    if (!data.includes('Connection closed by foreign host.')) {
-      errorCheck++;
-      return res.status(500).send(data);
-    }
-  });
-  flash.on('error', (err) => {
-    console.error(err);
-    errorCheck++;
-    return res.status(500).send(err);
-  });
-  flash.on('close', (code) => {
-    mux.writeSync(0);
-    if (errorCheck === 0) {
-      res.status(200).send('OK');
-      if (BALENA_FIN_REVISION > '09') {
-        supervisor.reboot().then(() => {
-          console.log('rebooting via supervisor...');
-        }).catch((err) => {
-          console.error('reboot failed with error: ', err);
-        });
-      }
-    } else {
-      console.log('flash failed! device will not reboot.');
-      errorCheck = 0;
-    }
-  });
+
+  return flasher.flash(req.params.fw)
+      .then(() => {
+        return res.status(200).send('OK');
+      });
 });
 
 app.post('/v1/sleep/:delay/:timeout', (req, res) => {
@@ -103,21 +64,45 @@ app.post('/v1/sleep/:delay/:timeout', (req, res) => {
   if (parseInt(BALENA_FIN_REVISION) < 10) {
     return res.status(405).send('Feature not available on current hardware revision');
   }
-  shutdown(req.params.delay,req.params.timeout).then(()=> {
-    console.error("Sleep command registered, shutting down...");
-    res.status(200).send('OK');
-  }).catch((error) => {
-    console.error("Device is not Idle, likely updating, will retry shutdown in 60 seconds");
-    setTimeout(shutdown, 60000);
-  });
+
+  shutdown(req.params.delay, req.params.timeout)
+      .then(() => {
+        console.error("Sleep command registered, shutting down...");
+        res.status(200).send('OK');
+      })
+      .catch((error) => {
+        console.error(`Error registering sleep command: ${error.message}`);
+        throw error;
+      });
 });
 
 app.listen(SERVER_PORT, () => {
+  console.log('balenaFin revision', BALENA_FIN_REVISION);
   console.log('server listening on port ' + SERVER_PORT);
 });
 
 process.on('SIGINT', () => {
-  mux.unexport();
-  board.reset();
+  flasher.stop();
   process.exit();
 });
+
+if (process.env.FLASH_ON_START_FILE) {
+  const firmwareFile = process.env.FLASH_ON_START_FILE;
+  const firmwareMeta = {
+    name: process.env.FLASH_ON_START_NAME,
+    version: process.env.FLASH_ON_START_VERSION,
+  };
+
+  if (firmwareMeta.name && firmwareMeta.version) {
+    console.log(`Automatic flashing is configured using ${firmwareFile}.`);
+    flasher.flashIfNeeded(firmwareFile, firmwareMeta)
+        .then((flashed) => {
+          if (!flashed) {
+            console.log('Automatic flashing is skipped: the requested firmware is already flashed.');
+          }
+        })
+        .catch(console.error);
+  } else {
+    console.log('Bad automatic flash configuration: firmware meta data is not fully provided');
+  }
+}
