@@ -76,7 +76,7 @@ app.post('/v1/setpin/:pin/:state', (req, res) => {
   setPin(req.params.pin, req.params.state).then(()=> {
     res.status(200).send('OK');
   }).catch((error) => {
-    console.error("device is not responding, check coprocessor firmware/any updates in progress.");  });
+    console.error("device is not responding, check for on-going coprocessor flashing/application updating.");  });
 });
 
 app.post('/v1/sleep/:delay/:timeout', (req, res) => {
