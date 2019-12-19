@@ -28,3 +28,13 @@ _POST_ `/v1/sleep/:delay/:timeout`
 triggers the balenaFin power saving mode.
 * `delay` (integer) is the amount of seconds the co-processor will wait before shutting down the linux side (CM3/CM3+)
 * `timeout` (integer) is the amount of seconds the co-processor will keep the linux side (CM3/CM3+) shut down before bringing it back up. There is a limit of 97 years (3,058,992,000 seconds) as the max value the co-processor can handle
+
+##### set pin
+
+_POST_ `/v1/setpin/:pin/:state`
+
+set digital pin state on the coprocessor header.
+* `pin` (integer) is the `Expansion Header` pin numbering as shown in the image below.
+* `state` (integer) is either 1 (on) or 0 (off)
+
+![Coprocessor EXP Header](exp_header.png "Coprocessor EXP Header")
