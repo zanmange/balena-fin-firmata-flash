@@ -65,14 +65,15 @@ function newFlasher(finRevision, supervisor, firmata) {
     },
 
     flashIfNeeded: function (filePath, meta) {
+      console.log(`Target firmware version: [${meta.name}/${meta.version}]`);
       return firmata.queryFirmware()
           .catch(() => {
             // We cannot query firmware.
             return { firmataName: '', firmataVersion: '' };
           })
-          .then(({ firmataName: currentName, firmataVersion: currentVersion }) => {
-            if (currentName !== meta.name || currentVersion !== meta.version) {
-              console.log('Start automatic flashing...');
+          .then(({ firmataName: currentName, implementationVersion: currentImplVersion }) => {
+            if (currentName !== meta.name || currentImplVersion !== meta.version) {
+              console.log(`Start automatic flashing: updating from [${currentName}/${currentImplVersion}]`);
               return this.flash(filePath).then(() => true);
             }
             return false;

@@ -19,6 +19,9 @@
     return this.slice(0, idx) + str + this.slice(idx + Math.abs(rem));
   };
 
+  const balenaSysex = 0x0B;
+  const balenaSysexSubCommandFirmware = 0x00;
+
   let self;
   let firmata = function() {
     'use strict';
@@ -74,6 +77,7 @@
 
         const timeout = setTimeout(() => {
           if (!data) {
+            board.clearSysexResponse(balenaSysex);
             reject(new Error('firmware metadata cannot be obtained'));
           }
         }, 10000);
@@ -81,25 +85,31 @@
         board.on("queryfirmware", () => {
           data = {
             firmataName: board.firmware.name,
-            firmataVersion: board.firmware.version.major + "." + board.firmware.version.minor
+            firmataVersion: board.firmware.version.major + "." + board.firmware.version.minor,
+            implementationVersion: ''
           };
-          clearTimeout(timeout);
-          resolve(data);
+          debug('queryfirmware completed');
+
+          board.clearSysexResponse(balenaSysex);
+          board.sysexResponse(balenaSysex, resp => {
+            debug('got sysex response');
+            clearTimeout(timeout);
+
+            const balenaVersion = String.fromCharCode.apply(null, Firmata.decode(resp));
+            debug(`Balena Firmata Version: ${balenaVersion}`);
+            data.implementationVersion = balenaVersion;
+            resolve(data);
+
+            board.clearSysexResponse(balenaSysex);
+          })
+          debug('sending sysex command');
+          board.sysexCommand([balenaSysex, balenaSysexSubCommandFirmware]);
         });
       });
+      debug('Calling queryfirmware');
       board.queryFirmware(() => { });
       return res;
     };
-
-    this.queryFirmware()
-        .then((data) => {
-          debug(data);
-
-          board.sysexCommand([0xF0, 0x0B, 0x00, 0xF7], (data) => {
-            debug(Firmata.decode(data));
-          });
-        })
-        .catch(() => {});
   };
   module.exports = firmata();
 }
