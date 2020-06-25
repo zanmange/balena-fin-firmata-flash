@@ -1,46 +1,30 @@
-FROM balenalib/%%BALENA_MACHINE_NAME%%-debian-node:12-stretch-run
+FROM balenalib/%%BALENA_MACHINE_NAME%%-debian-node:12-run
 
-ENV OPENOCD_REPO https://github.com/ntfreak/openocd.git
-ENV JIMTCL_REPO https://github.com/msteveb/jimtcl.git
-ENV JIMTCL_VERSION 0.77
-ENV LIBJAYLINK_REPO https://github.com/syntacore/libjaylink.git
+ENV BALENA_OPENOCD_VERSION 0.0.1
+ENV BALENA_FIN_SDK_VERSION 0.2.0
 
 # Defines our working directory in container
 WORKDIR /usr/src/app
 
 COPY ./app/package*.json ./
-COPY ./bin/git2cl ./
 
 # install required packages
 RUN install_packages \
-    libgirepository1.0-dev \
-    git \
-    build-essential \
-    python-dev \
-    curl \
-    wget \
-    libtool \
-    pkg-config \
-    autoconf \
-    automake \
-    texinfo \
-    libusb-1.0 \
     ftdi-eeprom \
     libftdi-dev \
     screen \
     telnet \
-    make \
-# clone and install openocd
-    && git clone --depth 1 $OPENOCD_REPO openocd-code && cd openocd-code && \
-      git clone --depth 1 $JIMTCL_REPO --branch $JIMTCL_VERSION jimtcl && \
-      mkdir -p tools/git2cl && mv ../git2cl tools/git2cl/ && \
-      git clone --depth 1 $LIBJAYLINK_REPO src/jtag/drivers/libjaylink && \
-      chmod -R +x ./* && autoreconf -f -i && ./configure --enable-sysfsgpio --enable-ft2232_libftdi && make && \
-      make install \
+    jq \
+
 # install nodeJS modules
     && JOBS=MAX npm ci --unsafe-perm --production && npm cache clean --force && rm -rf /tmp/* \
+
+# install openocd
+    && curl -Ls https://github.com/balena-io-playground/balena-fin-openocd/releases/download/v${BALENA_OPENOCD_VERSION}/openocd.tar.gz | tar -xvz -C . \
+    && ./install.sh
+
 # install the balenaFin sdk
-    && curl -Ls https://github.com/balena-io/balena-fin-sdk/releases/download/v0.2.0/balena-fin-sdk-v0.2.0.tar.gz | tar -xvz -C . \
+    && curl -Ls https://github.com/balena-io/balena-fin-sdk/releases/download/v${BALENA_FIN_SDK_VERSION}/balena-fin-sdk-v${BALENA_FIN_SDK_VERSION}.tar.gz | tar -xvz -C . \
     && mv Fin-0.2.typelib /usr/lib/arm-linux-gnueabihf/girepository-1.0/ && mv libfin.so /usr/lib/arm-linux-gnueabihf/
 
 # Move app to filesystem
