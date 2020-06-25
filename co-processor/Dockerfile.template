@@ -1,4 +1,4 @@
-ARG NODEJS_VERSION="12"
+ARG NODEJS_VERSION="12.18"
 
 ## buildstep base image
 FROM balenalib/%%BALENA_MACHINE_NAME%%-node:${NODEJS_VERSION}-build AS buildstep
@@ -28,7 +28,7 @@ RUN install_packages \
     jq \
 # install openocd
     && curl -Ls https://github.com/balena-io-playground/balena-fin-openocd/releases/download/v${BALENA_OPENOCD_VERSION}/openocd.tar.gz | tar -xvz -C . \
-    && ./install.sh \
+    && chmod +x install.sh && ./install.sh \
 # install the balenaFin sdk
     && curl -Ls https://github.com/balena-io/balena-fin-sdk/releases/download/v${BALENA_FIN_SDK_VERSION}/balena-fin-sdk-v${BALENA_FIN_SDK_VERSION}.tar.gz | tar -xvz -C . \
     && mv Fin-0.2.typelib /usr/lib/arm-linux-gnueabihf/girepository-1.0/ && mv libfin.so /usr/lib/arm-linux-gnueabihf/
