@@ -2,6 +2,10 @@ ARG NODEJS_VERSION="12"
 
 ## buildstep base image
 FROM balenalib/%%BALENA_MACHINE_NAME%%-node:${NODEJS_VERSION}-build AS buildstep
+# install required packages
+RUN install_packages \
+    libgirepository1.0-dev
+    
 WORKDIR /usr/src/app
 COPY ./app/package.json package.json
 RUN JOBS=MAX npm install --unsafe-perm --production && npm cache clean --force
