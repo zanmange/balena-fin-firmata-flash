@@ -40,11 +40,11 @@
     "compression": "^1.7.4",
     "debug": "^4.1.1",
     "express": "^4.17.1",
-    "firmata": "^2.0.0",
-    "node-gtk": "^0.3.0",
-    "onoff": "^4.1.3",
-    "request": "^2.88.0",
-    "request-promise-native": "^1.0.7",
-    "serialport": "^7.1.5"
+    "firmata": "^2.2.0",
+    "node-gtk": "^0.4.0",
+    "onoff": "^6.0.0",
+    "request": "^2.88.2",
+    "request-promise-native": "^1.0.8",
+    "serialport": "^9.0.0"
   }
 }
