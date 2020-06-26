@@ -26,13 +26,14 @@ RUN install_packages \
     screen \
     telnet \
     jq \
-    libgirepository1.0-dev \
+    libgirepository1.0-dev
 
 # install openocd
-    && mkdir openocd && cd openocd && curl -Ls https://github.com/balena-io/balena-fin-openocd/releases/download/v${BALENA_OPENOCD_VERSION}/openocd.tar.gz | tar -xvz -C . \
-    && chmod +x install.sh && ./install.sh && cd /usr/src/app && rm -rf openocd \
+RUN mkdir openocd && cd openocd && curl -Ls https://github.com/balena-io-playground/balena-fin-openocd/releases/download/v${BALENA_OPENOCD_VERSION}/openocd.tar.gz | tar -xvz -C . \
+    && chmod +x install.sh && ./install.sh && cd /usr/src/app && rm -rf openocd
+
 # install the balenaFin sdk
-    && curl -Ls https://github.com/balena-io/balena-fin-sdk/releases/download/v${BALENA_FIN_SDK_VERSION}/balena-fin-sdk-v${BALENA_FIN_SDK_VERSION}.tar.gz | tar -xvz -C . \
+RUN curl -Ls https://github.com/balena-io/balena-fin-sdk/releases/download/v${BALENA_FIN_SDK_VERSION}/balena-fin-sdk-v${BALENA_FIN_SDK_VERSION}.tar.gz | tar -xvz -C . \
     && mv Fin-0.2.typelib /usr/lib/arm-linux-gnueabihf/girepository-1.0/ && mv libfin.so /usr/lib/arm-linux-gnueabihf/
 
 # Move app to filesystem
