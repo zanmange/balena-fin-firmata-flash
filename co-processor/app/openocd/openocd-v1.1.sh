@@ -1,3 +1,3 @@
 #!/bin/bash
 
-openocd -f /usr/src/app/openocd/config/balena-fin-v1.1.cfg
+openocd -f board/balena-fin/balena-fin-v1-1
