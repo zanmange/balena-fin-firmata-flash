@@ -30,7 +30,7 @@ RUN install_packages \
     libgirepository1.0-dev
 
 # install openocd
-RUN mkdir openocd && cd openocd && curl -Ls https://github.com/balena-io-playground/balena-fin-openocd/releases/download/v${BALENA_OPENOCD_VERSION}/openocd.tar.gz | tar -xvz -C . \
+RUN mkdir openocd && cd openocd && curl -Ls https://github.com/balena-io/balena-fin-openocd/releases/download/v${BALENA_OPENOCD_VERSION}/openocd.tar.gz | tar -xvz -C . \
     && chmod +x install.sh && ./install.sh && cd /usr/src/app && rm -rf openocd
 
 # install the balenaFin sdk
