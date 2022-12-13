@@ -39,7 +39,7 @@
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
     "debug": "^4.1.1",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "firmata": "^2.2.0",
     "node-gtk": "^0.4.0",
     "onoff": "^6.0.0",
